@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:dcli/dcli.dart';
+import 'package:path/path.dart';
 
 /// Changes Android name of the project.
 void changeAndroidName({
@@ -9,15 +9,15 @@ void changeAndroidName({
   required String newNameSnakeCase,
   required String newNameUpperedFirstChars,
 }) {
-  final _basePath = join(baseFolderPath, 'android', 'app');
+  final basePath = join(baseFolderPath, 'android', 'app');
   final List<File> filesToChange = [
-    File(join(_basePath, 'build.gradle')),
-    File(join(_basePath, 'src', 'debug', 'AndroidManifest.xml')),
+    File(join(basePath, 'build.gradle')),
+    File(join(basePath, 'src', 'debug', 'AndroidManifest.xml')),
     //androidManifest,
-    File(join(_basePath, 'src', 'main', 'AndroidManifest.xml')),
+    File(join(basePath, 'src', 'main', 'AndroidManifest.xml')),
     File(
       join(
-        _basePath,
+        basePath,
         'src',
         'main',
         'kotlin',
@@ -27,7 +27,7 @@ void changeAndroidName({
         'MainActivity.kt',
       ),
     ),
-    File(join(_basePath, 'src', 'profile', 'AndroidManifest.xml')),
+    File(join(basePath, 'src', 'profile', 'AndroidManifest.xml')),
   ];
 
   for (final file in filesToChange) {
@@ -42,7 +42,7 @@ void changeAndroidName({
 
   //! Double check to make sure 'android label: ....' name is changed.
   final androidManifest =
-      File(join(_basePath, 'src', 'main', 'AndroidManifest.xml'));
+      File(join(basePath, 'src', 'main', 'AndroidManifest.xml'));
   final androidManifestLines = androidManifest.readAsLinesSync();
 
   final newLines = androidManifestLines.map((e) {

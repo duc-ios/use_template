@@ -4,29 +4,31 @@ import 'package:dcli/dcli.dart';
 import 'package:use_template/use_template.dart';
 
 void main(List<String> arguments) {
-  late final String _newAppName;
+  late final String newAppName;
 
-  late final String _repositoryOfTemplate;
+  late final String repositoryOfTemplate;
 
-  late final String _pathToInstall;
+  late final String pathToInstall;
+
+  late final String? branch;
 
   /*
   3 arguments means all of the name, repository and path is given.
   0 arguments means nothing is given, user will continue to the cli.
    */
-  if (!(arguments.length == 3 || arguments.isEmpty)) {
+  if (!(arguments.length == 4 || arguments.isEmpty)) {
     printerr(ConstStrings.wrongNumberOfArguments);
     return;
   }
 
-  if (arguments.length == 3) {
+  if (arguments.length == 4) {
     // Check if arguments[0] obeys regexp for being a valid flutter name.
     if (!RegExp(r'^[a-z_]+$').hasMatch(arguments[0])) {
       printerr(ConstStrings.mustPassSnackCaseName);
       return;
     }
 
-    _newAppName = arguments[0];
+    newAppName = arguments[0];
 
     // Check if arguments[1] obeys regexp for a valid git repository or if
     // it is an existing directory in the computer.
@@ -36,12 +38,14 @@ void main(List<String> arguments) {
       return;
     }
 
-    _repositoryOfTemplate = arguments[1];
+    repositoryOfTemplate = arguments[1];
 
-    _pathToInstall = arguments[2];
+    pathToInstall = arguments[2];
+
+    branch = arguments[3];
   } else {
     // Arguments is empty therefore user will use interactive interface.
-    _newAppName = ask(
+    newAppName = ask(
       ConstStrings.enterAppNameText,
       validator: Ask.regExp(
         r'^[a-z_]+$',
@@ -49,13 +53,13 @@ void main(List<String> arguments) {
       ),
     );
 
-    String _givenRepository = '_';
+    String givenRepository = '_';
 
     // While given repository is not empty nor valid, ask again.
-    while (!(_givenRepository.isEmpty ||
-        RegExp('^(https|git)://').hasMatch(_givenRepository) ||
-        Directory(_givenRepository).existsSync())) {
-      _givenRepository = ask(
+    while (!(givenRepository.isEmpty ||
+        RegExp('^(https|git)://').hasMatch(givenRepository) ||
+        Directory(givenRepository).existsSync())) {
+      givenRepository = ask(
         ConstStrings.repoOfTemplateText,
         required: false,
       );
@@ -63,26 +67,27 @@ void main(List<String> arguments) {
 
     // If given repository address is empty, use default template.
     // Else use the given.
-    _givenRepository.isEmpty
-        ? _repositoryOfTemplate = ConstStrings.defaultTemplate
-        : _repositoryOfTemplate = _givenRepository;
+    givenRepository.isEmpty
+        ? repositoryOfTemplate = ConstStrings.defaultTemplate
+        : repositoryOfTemplate = givenRepository;
 
-    final _givenPath = ask(
+    final givenPath = ask(
       ConstStrings.pathToInstallText,
       required: false,
     );
 
     // If given path is empty, use current path.
     // Else use the given.
-    _givenPath.isEmpty
-        ? _pathToInstall = truepath(Directory.current.path)
-        : _pathToInstall = truepath(_givenPath);
+    givenPath.isEmpty
+        ? pathToInstall = truepath(Directory.current.path)
+        : pathToInstall = truepath(givenPath);
   }
 
   // Execute the operations.
   UseTemplate.instance.exec(
-    newAppNameSnakeCase: _newAppName,
-    addressOfTemplate: _repositoryOfTemplate,
-    givenPath: _pathToInstall,
+    newAppNameSnakeCase: newAppName,
+    addressOfTemplate: repositoryOfTemplate,
+    givenPath: pathToInstall,
+    branch: branch,
   );
 }

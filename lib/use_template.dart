@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:dcli/dcli.dart';
+import 'package:path/path.dart';
 import 'package:use_template/src/name_changer_methods/change_android_name.dart';
 import 'package:use_template/src/name_changer_methods/change_flutter_name.dart';
 import 'package:use_template/src/name_changer_methods/change_ios_name.dart';
@@ -30,6 +31,7 @@ class UseTemplate {
     required String newAppNameSnakeCase,
     required String addressOfTemplate,
     required String givenPath,
+    String? branch,
   }) {
     _pathToInstall = Directory(join(givenPath, newAppNameSnakeCase)).path;
 
@@ -53,7 +55,7 @@ class UseTemplate {
       }
       try {
         // Clone the repository in it.
-        _cloneRepository(gitAddress, _pathToInstall);
+        _cloneRepository(gitAddress, _pathToInstall, branch);
       } catch (e) {
         printerr('${ConstStrings.couldntCloneRepository} : $e');
         // Abort.
@@ -287,8 +289,12 @@ class UseTemplate {
     }
   }
 
-  void _cloneRepository(String repository, String path) {
-    'git clone $repository $path'.run;
+  void _cloneRepository(String repository, String path, String? branch) {
+    if (branch != null) {
+      'git clone $repository $path --branch $branch'.run;
+    } else {
+      'git clone $repository $path'.run;
+    }
   }
 
   // Copies the files from the folder to the new folder.
